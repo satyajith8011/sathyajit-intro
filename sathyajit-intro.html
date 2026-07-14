@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sathyajit Halder — Intro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#0A1620;
+    --bg-1:#0F2233;
+    --panel:#132A3D;
+    --line:#28455C;
+    --copper:#E3A24A;
+    --copper-dim:#8A6530;
+    --cyan:#5FD4C8;
+    --text-hi:#EAF1F5;
+    --text-mid:#B7C8D4;
+    --text-dim:#6F8899;
+    --display:'Space Grotesk', sans-serif;
+    --mono:'JetBrains Mono', monospace;
+    --body:'Inter', sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:
+      radial-gradient(circle at 15% 8%, rgba(95,212,200,0.06), transparent 40%),
+      radial-gradient(circle at 85% 92%, rgba(227,162,74,0.06), transparent 40%),
+      var(--bg-0);
+    color:var(--text-hi);
+    font-family:var(--body);
+    overflow-x:hidden;
+  }
+
+  /* ---------- BOOT OVERLAY ---------- */
+  #boot{
+    position:fixed; inset:0; z-index:100; background:var(--bg-0);
+    display:flex; flex-direction:column; align-items:flex-start; justify-content:center;
+    padding:0 32px; font-family:var(--mono);
+    transition:opacity .6s ease, visibility .6s ease;
+  }
+  #boot.hide{ opacity:0; visibility:hidden; pointer-events:none; }
+  #boot .boot-inner{ max-width:520px; width:100%; }
+  #boot .line{ font-size:13px; color:var(--text-dim); margin-bottom:8px; opacity:0; white-space:nowrap; overflow:hidden; }
+  #boot .line .ok{ color:var(--cyan); }
+  #boot .cursor{ display:inline-block; width:7px; height:14px; background:var(--copper); margin-left:4px; animation:blinkCursor .9s steps(1) infinite; vertical-align:middle; }
+  #boot .bar-track{ width:100%; height:3px; background:var(--panel); border-radius:2px; margin-top:20px; overflow:hidden; }
+  #boot .bar-fill{ height:100%; width:0%; background:linear-gradient(90deg,var(--copper),var(--cyan)); box-shadow:0 0 10px var(--cyan); }
+  #boot .pct{ font-size:11px; color:var(--text-dim); margin-top:8px; }
+  @keyframes blinkCursor{ 0%,49%{opacity:1;} 50%,100%{opacity:0;} }
+
+  /* faint grid + drifting particles */
+  .grid-bg{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:
+      linear-gradient(rgba(95,212,200,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(95,212,200,0.035) 1px, transparent 1px);
+    background-size:42px 42px;
+    mask-image:radial-gradient(ellipse at 50% 30%, black 0%, transparent 75%);
+  }
+  .particles{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+  .particle{
+    position:absolute; width:3px; height:3px; border-radius:50%;
+    background:var(--cyan); opacity:.5; box-shadow:0 0 6px var(--cyan);
+    animation:drift linear infinite;
+  }
+  .particle.amber{ background:var(--copper); box-shadow:0 0 6px var(--copper); }
+  @keyframes drift{
+    from{ transform:translateY(0) translateX(0); opacity:0; }
+    10%{ opacity:.6; }
+    90%{ opacity:.4; }
+    to{ transform:translateY(-100vh) translateX(20px); opacity:0; }
+  }
+
+  .wrap{position:relative; z-index:1; max-width:760px; margin:0 auto; padding:0 28px;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    min-height:100svh;
+    display:flex; flex-direction:column; justify-content:center;
+    padding-top:60px; padding-bottom:40px;
+  }
+  .hero-eyebrow{
+    font-family:var(--mono); font-size:12px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--cyan); opacity:0; display:flex; align-items:center; gap:10px;
+    animation:fadeUp .7s ease forwards; animation-delay:.1s;
+  }
+  .hero-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan); animation:blink 2s ease-in-out infinite;}
+
+  #trace-svg{ width:100%; height:auto; display:block; margin:18px 0 8px -6px; }
+  .trace-path{
+    fill:none; stroke:var(--copper); stroke-width:1.6;
+    stroke-dasharray:2000; stroke-dashoffset:2000;
+    animation:draw 1.8s cubic-bezier(.65,0,.35,1) forwards;
+  }
+  .trace-path.cyan{ stroke:var(--cyan); animation-delay:.15s; }
+  .trace-node{
+    fill:var(--bg-0); stroke:var(--copper); stroke-width:1.6;
+    opacity:0; transform-origin:center;
+    animation:nodeIn .5s ease forwards, nodePulse 2.4s ease-in-out infinite;
+  }
+  .trace-node.cyan{ stroke:var(--cyan); }
+  .trace-label{
+    font-family:var(--mono); font-size:9.5px; fill:var(--text-dim);
+    opacity:0; animation:fadeUp .6s ease forwards;
+  }
+
+  .name-line{ display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; }
+  h1.name{
+    font-family:var(--display); font-weight:700; letter-spacing:-0.01em;
+    font-size:clamp(38px, 7.5vw, 64px); line-height:1;
+    background:linear-gradient(100deg, var(--text-hi) 40%, var(--cyan) 55%, var(--text-hi) 70%);
+    background-size:220% 100%;
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    opacity:0; animation:fadeUp .7s ease forwards, sheen 5s ease-in-out infinite; animation-delay:.45s, 2.5s;
+  }
+  .name-suffix{
+    font-family:var(--mono); font-size:14px; color:var(--copper);
+    opacity:0; animation:fadeUp .7s ease forwards; animation-delay:.7s;
+  }
+
+  .hero-tagline{
+    font-size:clamp(16px, 2.6vw, 19px); color:var(--text-mid); line-height:1.55;
+    max-width:560px; margin-top:20px;
+    opacity:0; animation:fadeUp .7s ease forwards; animation-delay:.9s;
+  }
+  .hero-tagline .accent{ color:var(--text-hi); font-weight:500; }
+
+  .scroll-cue{
+    margin-top:48px; display:flex; align-items:center; gap:10px;
+    font-family:var(--mono); font-size:11px; color:var(--text-dim); letter-spacing:.1em;
+    opacity:0; animation:fadeUp .7s ease forwards, bob 2s ease-in-out infinite; animation-delay:1.2s, 2.5s;
+  }
+  .scroll-cue .line{width:22px; height:1px; background:var(--text-dim); position:relative; overflow:hidden;}
+  .scroll-cue .line::after{
+    content:''; position:absolute; inset:0; background:var(--cyan);
+    animation:pulseLine 1.8s ease-in-out infinite;
+  }
+
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+  @keyframes draw{ to{ stroke-dashoffset:0; } }
+  @keyframes nodeIn{ from{opacity:0; transform:scale(0);} to{opacity:1; transform:scale(1);} }
+  @keyframes nodePulse{ 0%,100%{ filter:drop-shadow(0 0 0 transparent); } 50%{ filter:drop-shadow(0 0 4px var(--copper)); } }
+  @keyframes pulseLine{ 0%{transform:translateX(-100%);} 50%{transform:translateX(100%);} 100%{transform:translateX(100%);} }
+  @keyframes blink{ 0%,100%{opacity:1;} 50%{opacity:.35;} }
+  @keyframes bob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(5px); } }
+  @keyframes sheen{ 0%{ background-position:200% 0; } 100%{ background-position:-20% 0; } }
+
+  /* ---------- SECTIONS ---------- */
+  section{ padding:64px 0; border-top:1px solid var(--line); }
+  .reveal{ opacity:0; transform:translateY(22px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  .tag{
+    font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--copper); display:block; margin-bottom:18px;
+  }
+  .tag::before{ content:'// '; color:var(--copper-dim); }
+
+  blockquote.thesis{
+    font-family:var(--display); font-weight:500; font-size:clamp(22px,3.6vw,30px);
+    line-height:1.45; color:var(--text-hi); border-left:2px solid var(--copper);
+    padding-left:24px; position:relative;
+  }
+  blockquote.thesis span{ color:var(--text-dim); }
+
+  p.body-text{ font-size:16.5px; line-height:1.75; color:var(--text-mid); max-width:600px; }
+  p.body-text strong{ color:var(--text-hi); font-weight:600; }
+
+  /* modules grid */
+  .modules{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:8px; }
+  .module{
+    background:var(--panel); border:1px solid var(--line); border-radius:10px;
+    padding:20px 14px; text-align:center; position:relative; overflow:hidden;
+    transition:border-color .25s ease, transform .25s ease;
+  }
+  .module::before{
+    content:''; position:absolute; inset:0; opacity:0;
+    background:radial-gradient(circle at 50% 0%, rgba(95,212,200,0.15), transparent 70%);
+    transition:opacity .3s ease;
+  }
+  .module:hover{ border-color:var(--copper); transform:translateY(-4px); }
+  .module:hover::before{ opacity:1; }
+  .module svg{ width:32px; height:32px; margin-bottom:10px; position:relative; z-index:1; }
+  .module .m-label{ font-family:var(--mono); font-size:11px; color:var(--text-mid); letter-spacing:.02em; position:relative; z-index:1; }
+
+  .m-robot .head{ animation:tilt 3s ease-in-out infinite; transform-origin:12px 9px; }
+  .m-robot .antenna-dot{ animation:blink 1.6s ease-in-out infinite; }
+  @keyframes tilt{ 0%,100%{ transform:rotate(0deg); } 50%{ transform:rotate(-4deg); } }
+
+  .m-chain .link{ animation:linkPulse 2.4s ease-in-out infinite; }
+  .m-chain .link:nth-child(2){ animation-delay:.3s; }
+  .m-chain .link:nth-child(3){ animation-delay:.6s; }
+  @keyframes linkPulse{ 0%,100%{ opacity:1; } 50%{ opacity:.4; } }
+
+  .m-plc .signal{ animation:signalMove 2s linear infinite; }
+  @keyframes signalMove{ 0%{ stroke-dashoffset:24; } 100%{ stroke-dashoffset:0; } }
+
+  .m-cloud{ animation:floatY 3.6s ease-in-out infinite; }
+  @keyframes floatY{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-4px); } }
+
+  .offclock-row{ display:flex; gap:16px; align-items:center; margin-top:6px; }
+  .offclock-icon{
+    width:56px; height:56px; flex:none; border-radius:12px; background:var(--panel);
+    border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
+    transition:transform .3s ease, border-color .3s ease;
+  }
+  .offclock-icon:hover{ transform:translateY(-3px) rotate(-3deg); border-color:var(--cyan); }
+  .offclock-icon svg{ width:26px; height:26px; }
+  .cam-shutter{ animation:shutterSpin 6s linear infinite; transform-origin:12px 12px; }
+  @keyframes shutterSpin{ 100%{ transform:rotate(360deg); } }
+  .pen-tip{ animation:penWiggle 2.4s ease-in-out infinite; transform-origin:18px 6px; }
+  @keyframes penWiggle{ 0%,100%{ transform:rotate(0deg); } 50%{ transform:rotate(8deg); } }
+
+  /* contact */
+  .contact-grid{ display:flex; flex-direction:column; gap:12px; margin-top:22px; }
+  .contact-card{
+    display:flex; align-items:center; gap:14px; background:var(--panel);
+    border:1px solid var(--line); border-radius:12px; padding:14px 18px;
+    text-decoration:none; color:var(--text-hi); position:relative; overflow:hidden;
+    transition:border-color .25s ease, transform .25s ease, box-shadow .25s ease;
+  }
+  .contact-card:hover{ border-color:var(--cyan); transform:translateX(6px); box-shadow:0 4px 20px rgba(95,212,200,0.12); }
+  .contact-card .c-icon{
+    width:38px; height:38px; flex:none; border-radius:9px; background:var(--bg-1);
+    display:flex; align-items:center; justify-content:center; border:1px solid var(--line);
+  }
+  .contact-card .c-icon svg{ width:19px; height:19px; }
+  .contact-card .c-text{ display:flex; flex-direction:column; gap:1px; }
+  .contact-card .c-label{ font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim); }
+  .contact-card .c-value{ font-size:14.5px; font-weight:500; word-break:break-all; }
+  .contact-card .c-arrow{ margin-left:auto; color:var(--text-dim); transition:transform .25s ease, color .25s ease; flex:none; }
+  .contact-card:hover .c-arrow{ transform:translateX(4px); color:var(--cyan); }
+
+  /* closing */
+  .closing{ text-align:left; }
+  .closing p.body-text{ margin-bottom:26px; }
+  .sig-block{ font-family:var(--display); font-size:20px; margin-top:6px; }
+  .sig-name{ color:var(--text-hi); font-weight:700; }
+  .sig-role{ font-family:var(--mono); font-size:11px; color:var(--text-dim); letter-spacing:.1em; text-transform:uppercase; margin-top:4px; }
+
+  .status-line{
+    display:flex; align-items:center; gap:8px; margin-top:34px;
+    font-family:var(--mono); font-size:11.5px; color:var(--text-dim);
+  }
+  .status-line .dot{ width:6px; height:6px; border-radius:50%; background:var(--cyan); box-shadow:0 0 8px var(--cyan); animation:blink 2s ease-in-out infinite; }
+
+  footer{ padding:36px 0 60px; text-align:center; }
+  footer span{ font-family:var(--mono); font-size:10.5px; color:var(--text-dim); letter-spacing:.08em; }
+
+  @media (max-width:640px){
+    .modules{ grid-template-columns:repeat(2,1fr); }
+    section{ padding:48px 0; }
+    blockquote.thesis{ padding-left:16px; }
+    .contact-card .c-value{ font-size:13px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+    .trace-path{ stroke-dashoffset:0; }
+    #boot{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="boot">
+  <div class="boot-inner">
+    <div class="line" id="b1">&gt; booting profile<span class="ok">.halder</span> <span class="cursor"></span></div>
+    <div class="line" id="b2">&gt; loading modules: robotics, blockchain, plc, aws...</div>
+    <div class="line" id="b3">&gt; compiling six-language interpreter... <span class="ok">ok</span></div>
+    <div class="line" id="b4">&gt; establishing connection...</div>
+    <div class="bar-track"><div class="bar-fill" id="bar"></div></div>
+    <div class="pct" id="pct">0%</div>
+  </div>
+</div>
+
+<div class="grid-bg"></div>
+<div class="particles" id="particles"></div>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <section class="hero" style="border-top:none;">
+    <div class="hero-eyebrow"><span class="dot"></span>SYSTEM ONLINE — INTRODUCTION LOADED</div>
+
+    <svg id="trace-svg" viewBox="0 0 700 130" xmlns="http://www.w3.org/2000/svg">
+      <path class="trace-path" d="M10,100 L10,60 L60,60 L60,20 L160,20" />
+      <path class="trace-path cyan" d="M690,100 L690,70 L630,70 L630,30 L520,30" />
+      <path class="trace-path" d="M10,100 L120,100 L140,80" style="animation-delay:.25s" />
+      <path class="trace-path cyan" d="M690,100 L580,100 L560,80" style="animation-delay:.3s" />
+      <circle class="trace-node" cx="10" cy="100" r="4" style="animation-delay:.3s" />
+      <circle class="trace-node" cx="60" cy="60" r="3" style="animation-delay:.35s" />
+      <circle class="trace-node" cx="160" cy="20" r="3.5" style="animation-delay:.4s" />
+      <circle class="trace-node cyan" cx="690" cy="100" r="4" style="animation-delay:.3s" />
+      <circle class="trace-node cyan" cx="630" cy="70" r="3" style="animation-delay:.35s" />
+      <circle class="trace-node cyan" cx="520" cy="30" r="3.5" style="animation-delay:.4s" />
+      <text class="trace-label" x="165" y="17" style="animation-delay:.6s">robotics · blockchain · plc</text>
+      <text class="trace-label" x="360" y="17" text-anchor="middle" style="animation-delay:.65s">aws · security · design</text>
+    </svg>
+
+    <div class="name-line">
+      <h1 class="name">Sathyajit&nbsp;Halder</h1>
+      <span class="name-suffix">/// ENGINEER</span>
+    </div>
+
+    <p class="hero-tagline">
+      The best ideas aren't the fanciest ones—they're the ones that <span class="accent">quietly solve a real problem</span> for someone. That's what keeps me building.
+    </p>
+
+    <div class="scroll-cue"><div class="line"></div>SCROLL TO CONTINUE</div>
+  </section>
+
+  <!-- THESIS -->
+  <section>
+    <div class="reveal">
+      <span class="tag">operating principle</span>
+      <blockquote class="thesis">
+        Quiet fixes over flashy features. <span>If it solves something real, it's worth building.</span>
+      </blockquote>
+    </div>
+  </section>
+
+  <!-- BIO -->
+  <section>
+    <div class="reveal">
+      <span class="tag">profile</span>
+      <p class="body-text">
+        I'm <strong>Sathyajit Halder</strong>—engineer by training, tinkerer by nature. I recently wrapped up a stint at <strong>HirePro Technologies</strong> working on recruitment tech and data workflows, while completing my B.Tech in IT, along with a Data Science program from <strong>IIT Guwahati</strong>.
+      </p>
+    </div>
+  </section>
+
+  <!-- PLAYGROUND -->
+  <section>
+    <div class="reveal">
+      <span class="tag">the playground</span>
+      <p class="body-text" style="margin-bottom:28px;">
+        My real playground is building things that matter. I've explored robotics, blockchain, PLCs, AWS architecture, and enough languages to hold a conversation in six of them.
+      </p>
+
+      <div class="modules">
+        <div class="module">
+          <svg class="m-robot" viewBox="0 0 24 24" fill="none" stroke="#E3A24A" stroke-width="1.6">
+            <line x1="12" y1="6" x2="12" y2="3"/>
+            <circle class="antenna-dot" cx="12" cy="2.4" r="1" fill="#E3A24A" stroke="none"/>
+            <g class="head">
+              <rect x="6" y="6" width="12" height="9" rx="2.2"/>
+              <circle cx="9.5" cy="10.3" r="1.1" fill="#E3A24A" stroke="none"/>
+              <circle cx="14.5" cy="10.3" r="1.1" fill="#E3A24A" stroke="none"/>
+              <path d="M9 13h6"/>
+            </g>
+            <path d="M6 18h12M8 15v3M16 15v3"/>
+          </svg>
+          <div class="m-label">ROBOTICS</div>
+        </div>
+        <div class="module">
+          <svg class="m-chain" viewBox="0 0 24 24" fill="none" stroke="#5FD4C8" stroke-width="1.6">
+            <rect class="link" x="3" y="3" width="7" height="7" rx="1.4"/>
+            <rect class="link" x="14" y="3" width="7" height="7" rx="1.4"/>
+            <rect class="link" x="8.5" y="14" width="7" height="7" rx="1.4"/>
+            <path d="M10 6.5h4M6.5 10L10 15.5M17.5 10L14 15.5"/>
+          </svg>
+          <div class="m-label">BLOCKCHAIN</div>
+        </div>
+        <div class="module">
+          <svg class="m-plc" viewBox="0 0 24 24" fill="none" stroke="#E3A24A" stroke-width="1.6">
+            <rect x="4" y="4" width="16" height="16" rx="2"/>
+            <path class="signal" d="M7 14l2.5-5 2 3 2-6 3.5 8" stroke-dasharray="24" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div class="m-label">PLC SYSTEMS</div>
+        </div>
+        <div class="module">
+          <svg class="m-cloud" viewBox="0 0 24 24" fill="none" stroke="#5FD4C8" stroke-width="1.6">
+            <path d="M6 16a4 4 0 010-8 5 5 0 019.6-1.5A4.5 4.5 0 0118 16H6z"/>
+          </svg>
+          <div class="m-label">AWS CLOUD</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OFF THE CLOCK -->
+  <section>
+    <div class="reveal">
+      <span class="tag">off the clock</span>
+      <div class="offclock-row">
+        <div class="offclock-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#E3A24A" stroke-width="1.6"><rect x="2" y="7" width="20" height="14" rx="2"/><circle class="cam-shutter" cx="12" cy="14" r="3.5"/><path d="M8 7l1.5-3h5L16 7"/></svg>
+        </div>
+        <div class="offclock-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#5FD4C8" stroke-width="1.6"><path class="pen-tip" d="M18 3l3 3-10 10-4 1 1-4z"/><circle cx="6" cy="18" r="2"/></svg>
+        </div>
+        <p class="body-text" style="margin:0;">
+          You'll find me behind a camera, or lost in a graphic design tab.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section>
+    <div class="reveal">
+      <span class="tag">reach me</span>
+      <div class="contact-grid">
+        <a class="contact-card" href="https://wa.me/919035793685" target="_blank" rel="noopener">
+          <div class="c-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#5FD4C8" stroke-width="1.6"><path d="M20 12a8 8 0 10-14.6 4.6L4 21l4.6-1.2A8 8 0 0020 12z"/><path d="M9 10.5c0 2.5 2.5 5 5 5 .8 0 1.5-.7 1.5-1.5l-2-1-1 1a5 5 0 01-2.5-2.5l1-1-1-2c-.8 0-1.5.7-1.5 1.5z" fill="#5FD4C8" stroke="none"/></svg>
+          </div>
+          <div class="c-text">
+            <span class="c-label">WhatsApp</span>
+            <span class="c-value">+91 90357 93685</span>
+          </div>
+          <svg class="c-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+
+        <a class="contact-card" href="mailto:sathyajith.haldar@hirepro.in">
+          <div class="c-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#E3A24A" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+          </div>
+          <div class="c-text">
+            <span class="c-label">Email</span>
+            <span class="c-value">sathyajith.haldar@hirepro.in</span>
+          </div>
+          <svg class="c-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+
+        <a class="contact-card" href="https://www.linkedin.com/in/satyajith-halder-6423a822a?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" rel="noopener">
+          <div class="c-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#5FD4C8" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8.5" r="1" fill="#5FD4C8" stroke="none"/><path d="M8 11v6M12 17v-4a2 2 0 014 0v4M12 13v-2"/></svg>
+          </div>
+          <div class="c-text">
+            <span class="c-label">LinkedIn</span>
+            <span class="c-value">satyajith-halder</span>
+          </div>
+          <svg class="c-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSING -->
+  <section class="closing">
+    <div class="reveal">
+      <span class="tag">connect</span>
+      <p class="body-text">
+        Excited to connect, collaborate, and build something meaningful with you all.
+      </p>
+      <div class="sig-block">
+        <div class="sig-name">Sathyajit Halder</div>
+        <div class="sig-role">Engineer · Tinkerer · Builder</div>
+      </div>
+      <div class="status-line"><span class="dot"></span>OPEN TO CONNECT</div>
+    </div>
+  </section>
+
+  <footer><span>— END OF TRANSMISSION —</span></footer>
+
+</div>
+
+<script>
+  // boot sequence
+  const lines = ['b1','b2','b3','b4'];
+  lines.forEach((id,i)=>{
+    const el = document.getElementById(id);
+    el.style.animation = 'fadeUp .4s ease forwards';
+    el.style.animationDelay = (i*0.35)+'s';
+  });
+  const bar = document.getElementById('bar');
+  const pct = document.getElementById('pct');
+  let p = 0;
+  const iv = setInterval(()=>{
+    p += Math.random()*18 + 8;
+    if(p >= 100){ p = 100; clearInterval(iv); }
+    bar.style.width = p+'%';
+    pct.textContent = Math.floor(p)+'%';
+    if(p >= 100){
+      setTimeout(()=>{ document.getElementById('boot').classList.add('hide'); }, 350);
+    }
+  }, 220);
+
+  // safety: force-hide boot after max wait
+  setTimeout(()=>{ document.getElementById('boot').classList.add('hide'); }, 3200);
+
+  // reveal on scroll
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, {threshold:0.15});
+  revealEls.forEach(el=>io.observe(el));
+
+  // ambient particles
+  const pWrap = document.getElementById('particles');
+  const colors = ['','amber'];
+  for(let i=0;i<24;i++){
+    const d = document.createElement('div');
+    d.className = 'particle ' + colors[Math.floor(Math.random()*colors.length)];
+    d.style.left = Math.random()*100+'vw';
+    d.style.bottom = '-10px';
+    d.style.animationDuration = (8 + Math.random()*10)+'s';
+    d.style.animationDelay = (Math.random()*10)+'s';
+    pWrap.appendChild(d);
+  }
+</script>
+
+</body>
+</html>
